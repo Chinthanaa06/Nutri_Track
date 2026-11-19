@@ -1,0 +1,27 @@
+name: Deployment verification
+on:
+  workflow_run:
+    workflows: ["Build and publish containers"]
+    types: [completed]
+permissions:
+  contents: read
+  packages: read
+jobs:
+  verify:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Login to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+      - name: Verify stack
+        run: |
+          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          API_IMAGE=ghcr.io/$OWNER/nutritrack-api:latest FRONTEND_IMAGE=ghcr.io/$OWNER/nutritrack-frontend:latest docker compose up -d
+          for i in $(seq 1 40); do curl -fsS http://localhost:8000/health && break || sleep 3; done
+          curl -fsS http://localhost:8000/health
+          curl -fsS -X POST http://localhost:8000/children -H 'Content-Type: application/json' -d '{"child_code":"CI-1","name":"CI Demo","age_months":24,"sex":"F"}'
+          docker compose down -v
+      - name: Optional Render deploy
+        if: ${{ secrets.RENDER_DEPLOY_HOOK != '' }}
+        run: curl -fsS -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}"

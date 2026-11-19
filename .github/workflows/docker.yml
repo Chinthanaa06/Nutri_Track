@@ -1,0 +1,30 @@
+name: Build and publish containers
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+  packages: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build API
+        run: docker build -t ghcr.io/${{ github.repository_owner }}/nutritrack-api:latest .
+      - name: API smoke test
+        run: |
+          docker run -d --name api-smoke -p 8000:8000 ghcr.io/${{ github.repository_owner }}/nutritrack-api:latest
+          for i in $(seq 1 30); do curl -fsS http://localhost:8000/health && break || sleep 2; done
+          curl -fsS http://localhost:8000/health
+          docker rm -f api-smoke
+      - name: Build frontend
+        run: docker build -f Dockerfile.frontend -t ghcr.io/${{ github.repository_owner }}/nutritrack-frontend:latest .
+      - run: docker push ghcr.io/${{ github.repository_owner }}/nutritrack-api:latest
+      - run: docker push ghcr.io/${{ github.repository_owner }}/nutritrack-frontend:latest

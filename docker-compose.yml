@@ -1,0 +1,39 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: nutritrack
+      POSTGRES_USER: nutritrack
+      POSTGRES_PASSWORD: nutritrack_local
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nutritrack -d nutritrack"]
+      interval: 5s
+      timeout: 3s
+      retries: 15
+  api:
+    image: ${API_IMAGE:-nutritrack-api:local}\n    build: .
+    environment:
+      DATABASE_URL: postgresql+psycopg://nutritrack:nutritrack_local@db:5432/nutritrack
+    ports: ["8000:8000"]
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 10s
+      timeout: 4s
+      retries: 10
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    environment:
+      API_URL: http://api:8000
+    ports: ["8501:8501"]
+    depends_on:
+      api:
+        condition: service_healthy
+volumes:
+  postgres_data:
