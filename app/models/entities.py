@@ -1,13 +1,17 @@
 from datetime import datetime
+
 from sqlalchemy import Column, DateTime, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
+
 from app.db.database import Base
+
 
 class User(Base):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True)
     username = Column(String(80), unique=True, nullable=False)
     password = Column(String(120), nullable=False)
+
 
 class Child(Base):
     __tablename__ = "children"
@@ -17,6 +21,7 @@ class Child(Base):
     age_months = Column(Integer, nullable=False)
     sex = Column(String(10), nullable=False)
     visits = relationship("Visit", back_populates="child", cascade="all, delete-orphan")
+
 
 class Visit(Base):
     __tablename__ = "visits"

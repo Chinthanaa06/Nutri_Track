@@ -1,14 +1,17 @@
 from pydantic import BaseModel, Field
 
+
 class LoginInput(BaseModel):
     username: str
     password: str
+
 
 class ChildInput(BaseModel):
     child_code: str
     name: str
     age_months: int = Field(ge=0, le=60)
     sex: str
+
 
 class VisitInput(BaseModel):
     child_id: int

@@ -19,10 +19,15 @@ def early_risk_score(history):
             score += 0.10
     return round(min(score, 1.0), 2)
 
+
 def explain_factors(visit):
     factors = []
-    if visit["whz"] < -1: factors.append("Low weight relative to height")
-    if visit["muac_cm"] < 12.5: factors.append("Low mid-upper arm circumference")
-    if visit.get("recent_illness"): factors.append("Recent illness reported")
-    if visit.get("dietary_diversity", 0) < 4: factors.append("Low dietary diversity")
+    if visit["whz"] < -1:
+        factors.append("Low weight relative to height")
+    if visit["muac_cm"] < 12.5:
+        factors.append("Low mid-upper arm circumference")
+    if visit.get("recent_illness"):
+        factors.append("Recent illness reported")
+    if visit.get("dietary_diversity", 0) < 4:
+        factors.append("Low dietary diversity")
     return factors[:4] or ["No major screening flag in the recorded indicators"]

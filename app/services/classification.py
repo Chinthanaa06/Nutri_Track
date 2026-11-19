@@ -10,12 +10,28 @@ def classify_status(waz: float, haz: float, whz: float, muac_cm: float) -> str:
         return "Underweight"
     return "Normal"
 
+
 def recommendations(status: str):
     advice = {
-        "Normal": ["Continue age-appropriate diverse meals", "Attend routine growth monitoring"],
-        "Underweight": ["Arrange a follow-up growth check", "Discuss energy- and protein-rich local foods"],
-        "Stunted": ["Review long-term diet and illness history", "Refer for a qualified growth assessment"],
-        "Moderate Acute Malnutrition": ["Arrange prompt assessment by a qualified health worker", "Follow local nutrition programme guidance"],
-        "Severe Acute Malnutrition": ["Urgent referral to an appropriate health facility", "Do not delay professional assessment"],
+        "Normal": [
+            "Continue age-appropriate diverse meals",
+            "Attend routine growth monitoring",
+        ],
+        "Underweight": [
+            "Arrange a follow-up growth check",
+            "Discuss energy- and protein-rich local foods",
+        ],
+        "Stunted": [
+            "Review long-term diet and illness history",
+            "Refer for a qualified growth assessment",
+        ],
+        "Moderate Acute Malnutrition": [
+            "Arrange prompt assessment by a qualified health worker",
+            "Follow local nutrition programme guidance",
+        ],
+        "Severe Acute Malnutrition": [
+            "Urgent referral to an appropriate health facility",
+            "Do not delay professional assessment",
+        ],
     }
     return advice.get(status, ["Seek qualified health-worker assessment"])
